@@ -211,7 +211,7 @@ def getSearchablePhraseBucketList(filename):
 
 #populateUsableDictionary("words.txt", "wordlist", "matched_wordlist")
 
-goodBucketList, goodWordsList = getGoodwordsBucketList("matched_wordlist.txt")
+goodBucketList, goodWordsList = getGoodwordsBucketList("matched_wordlist2.txt")
 bucketToEmpty, totalLetters = getSearchablePhraseBucketList("words.txt")
 
 
