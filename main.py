@@ -311,6 +311,7 @@ for i1 in sum_to_n(18, 3):
             for b2 in per[1]:
                 
                 for b3 in per[2]:
+
                     isbandykVarianta(b1, b2, b3)
             end = time.clock()
             print("{}  {} is {}".format(i1, i, isViso))
