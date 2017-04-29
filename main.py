@@ -274,7 +274,7 @@ def isbandykVarianta(b1, b2, b3):
         print("WE HAVE A WINNER!")
         
         print(newPhrase)
-        with codecs.open("winner.txt", "w", "utf-8") as f:
+        with codecs.open("winner.txt", "a", "utf-8") as f:
             f.write(newPhrase + "; " + guessableHash + "\n")
 
 for i1 in sum_to_n(18, 3):
@@ -284,11 +284,15 @@ zodziaiSuRaidziuKiekiu = []
 for i in range(1, 12):
     print(i)
     zodziaiSuRaidziuKiekiu.append(gaukZodziusSuIlgiuX(buckets, i))
+
 for i1 in sum_to_n(18, 3):
     print(i1)
+    isGood = True
     for i2 in i1:
         if i2 > 11:
-            break
+            isGood = False
+    if (isGood == False):
+        continue
     print("Spausdinam: {}".format(i1))
     p1 = [zodziaiSuRaidziuKiekiu[i1[0] -1], zodziaiSuRaidziuKiekiu[i1[1] -1], zodziaiSuRaidziuKiekiu[i1[2] -1]]
 
@@ -305,6 +309,7 @@ for i1 in sum_to_n(18, 3):
 
             i+=1
             for b2 in per[1]:
+                
                 for b3 in per[2]:
                     isbandykVarianta(b1, b2, b3)
             end = time.clock()
