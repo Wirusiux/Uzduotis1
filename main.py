@@ -2,7 +2,7 @@ from sys import argv
 import codecs
 import hashlib
 import os
-
+from Bucket import Bucket
 import sys
 
 print (sys.getrecursionlimit())
@@ -79,13 +79,17 @@ def makeBucketsLetters(word1):
 
 def getGoodwordsBucketList(wordsFileName):
     with codecs.open(wordsFileName, "r", "utf-8") as dictFile:
-        goodBucketList = []
-        goodWordsList = []
+        buckets = []
+
         for line in dictFile:
             goodWord = line[:-1]
-            goodBucketList.append(makeBucketsLetters(goodWord))
-            goodWordsList.append(goodWord)
-    return (goodBucketList, goodWordsList)
+            bucket = Bucket()
+            bucket.word = goodWord
+            bucket.sortedWord = getArrangedLetters(goodWord)
+            bucket.wordLength = len(goodWord)
+            bucket.bucket = makeBucketsLetters(goodWord)
+            buckets.append(bucket)
+    return (buckets)
         
 def getSearchablePhraseBucketList(filename):
     wordsFile = open(filename, "r")
@@ -136,6 +140,9 @@ def searchForWords(bucketToEmpty1, bucketList, wordsList, index, totalLetters):
         #nueje iki galo, vel griztam nuo pradziu:
         if(i ==totalBuckets):
             i = 0
+            if(index == 0):
+                print(newPhrase)
+                return (False, "")
 
         candidateWord = bucketList[i]
         (matched, bucketToEmpty, lettersLeft) = tryTheCandidate(bucketToEmpty, candidateWord, lettersLeft)
@@ -146,6 +153,7 @@ def searchForWords(bucketToEmpty1, bucketList, wordsList, index, totalLetters):
             return (True, newPhrase)
         #jei i yra ant elemento -1, nuo kurio pradejom, reiskias praejom visa cikla, iseik ir grazink False:
         if (i == index - 1):
+            print(newPhrase)
             return (False, "")
         i += 1
 
@@ -173,11 +181,21 @@ def bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index, totalL
         bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index + 1, totalLetters, goodPhrasesList, fileToWrite)
     return 
 
+def getArrayOfBucketsSortedByLetterLength(buckets):
+    "pagal zodzio ilgi surikiuojam"
+    for i in range(1,length):
+        print(i)
+        #randam visus zodzius, kuriu ilgis yra 1
+        for bucket in buckets:
+            if bucket.wordLength == i
+    
 
 #populateUsableDictionary("words.txt", "wordlist", "matched_wordlist")
 
-goodBucketList, goodWordsList = getGoodwordsBucketList("matched_wordlist2.txt")
+buckets = getGoodwordsBucketList("matched_wordlist_suranka.txt")
 bucketToEmpty, totalLetters = getSearchablePhraseBucketList("words.txt")
+
+arrayOfBucketsSortedByLetterLength = getArrayOfBucketsSortedByLetterLength(buckets)
 
 goodPhrasesList = []
 with codecs.open("results.txt", "w", "utf-8") as fileToWrite:
