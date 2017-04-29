@@ -4,15 +4,18 @@ import hashlib
 import os
 from Bucket import Bucket
 import sys
+from itertools import permutations
+import time
 
 print (sys.getrecursionlimit())
 
 sys.setrecursionlimit(0x100000)
+hashesToGuess = ["e4820b45d2277f3844eac66c903e84be", "23170acc097c24edb98fc5488ab033fe", "665e5bcb0c20062fe8abaaf4628bb154"]
 
 def getArrangedLetters(str ):
    "Removes spaces, orders letters by alphabet"
    arrangedStr = str.replace(" ","")
-   sortedStr = ''.join(sorted(arrangedStr))
+   sortedStr = ''.join(sorted(str))
    return sortedStr
 
 def getUniqueLetters(str):
@@ -127,11 +130,11 @@ def tryTheCandidate(bucketToEmpty, candidateWord, lettersLeft):
 
     return  (newBucket, lettersLeft) 
     
-def searchForWords(bucketToEmpty1, bucketList, wordsList, index, totalLetters):
+def searchForWords(bucketToEmpty1, buckets, index, totalLetters):
     """Bega per bucketList pradedant nuo indexo ir aplink ji iki index -1.
        Iki kol uzpildo anagrama, arba pribega index -1 Grazina True ir phrase arba False ir empty string  
     """
-    totalBuckets = len(bucketList)
+    totalBuckets = len(buckets)
     bucketToEmpty = bucketToEmpty1.copy()
     lettersLeft = totalLetters
     newPhrase = ""
@@ -144,25 +147,25 @@ def searchForWords(bucketToEmpty1, bucketList, wordsList, index, totalLetters):
                 print(newPhrase)
                 return (False, "")
 
-        candidateWord = bucketList[i]
+        candidateWord = buckets[i].bucket
         (matched, bucketToEmpty, lettersLeft) = tryTheCandidate(bucketToEmpty, candidateWord, lettersLeft)
         if (matched):
-             newPhrase = " ".join([newPhrase, wordsList[i]])
+             newPhrase = " ".join([newPhrase, buckets[i].word])
         #Jei lettersLeft <= 0, reiskias radom fraze anagrama
         if (lettersLeft <= 0):
             return (True, newPhrase)
         #jei i yra ant elemento -1, nuo kurio pradejom, reiskias praejom visa cikla, iseik ir grazink False:
         if (i == index - 1):
-            print(newPhrase)
+            #print(newPhrase)
             return (False, "")
         i += 1
 
 
-def bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index, totalLetters, goodPhrasesList, fileToWrite):
-    hashesToGuess = ["e4820b45d2277f3844eac66c903e84be", "23170acc097c24edb98fc5488ab033fe", "665e5bcb0c20062fe8abaaf4628bb154"]
+def bigFatPhunction(bucketToEmpty1, buckets, index, totalLetters, goodPhrasesList, fileToWrite):
+
     i = index
-    totalWords = len(goodWordsList)
-    (match, newPhrase) = searchForWords(bucketToEmpty1, goodBucketList, goodWordsList, i, totalLetters)
+    totalWords = len(buckets)
+    (match, newPhrase) = searchForWords(bucketToEmpty1, buckets, i, totalLetters)
     if (match):
         newPhrase = newPhrase[1:]
         goodPhrasesList.append(newPhrase)
@@ -176,46 +179,149 @@ def bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index, totalL
             with codecs.open("winner.txt", "w", "utf-8") as f:
                 f.write(newPhrase + "; " + guessableHash + "\n")
             return
-    print(i)
+    #print(i)
     if(i != totalWords -1):
-        bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index + 1, totalLetters, goodPhrasesList, fileToWrite)
+        bigFatPhunction(bucketToEmpty1, buckets, index + 1, totalLetters, goodPhrasesList, fileToWrite)
     return 
 
-def getArrayOfBucketsSortedByLetterLength(buckets):
-    "pagal zodzio ilgi surikiuojam"
-    for i in range(1,length):
-        print(i)
-        #randam visus zodzius, kuriu ilgis yra 1
-        for bucket in buckets:
-            if bucket.wordLength == i
-    
-
-#populateUsableDictionary("words.txt", "wordlist", "matched_wordlist")
-
-buckets = getGoodwordsBucketList("matched_wordlist_suranka.txt")
-bucketToEmpty, totalLetters = getSearchablePhraseBucketList("words.txt")
-
-arrayOfBucketsSortedByLetterLength = getArrayOfBucketsSortedByLetterLength(buckets)
-
-goodPhrasesList = []
-with codecs.open("results.txt", "w", "utf-8") as fileToWrite:
-    bigFatPhunction(bucketToEmpty, goodBucketList, goodWordsList, 0, totalLetters, goodPhrasesList, fileToWrite)
-
-print("ok")
-
-from itertools import permutations
-def visi_deriniai (str):
+def visi_deriniai(str):
     betkaip=str.split(" ")
     perms = [' '.join(p) for p in permutations(betkaip)]
     return (perms)
 
+def gaukZodziusSuIlgiuX(buckets, ilgis):
+    geriBucketai = []
+    for bucket in buckets:
+        if (bucket.wordLength == ilgis):
+            geriBucketai.append(bucket.word)
+    return tuple(geriBucketai)
 
-str="airs l n o ops t tut ty u w"
-deriniu_listas=visi_deriniai(str)
-print(deriniu_listas)
+#populateUsableDictionary("words.txt", "wordlist", "matched_wordlist")
 
-<<<<<<< HEAD
+buckets = getGoodwordsBucketList("matched_wordlist2.txt")
+bucketToEmpty, totalLetters = getSearchablePhraseBucketList("words.txt")
 
-=======
-print("ok")
->>>>>>> d97a9a02251ecd8d63d1906084efd857c9051507
+def subset_sum(numbers, target, rez, partial=[]):
+    s = sum(partial)
+
+    # check if the partial sum is equals to target
+    if s == target: 
+        print ("sum(%s)=%s" % (partial, target))
+
+        rez.append(partial)
+    if s >= target:
+        return  # if we reach the number why bother to continue
+
+    for i in range(len(numbers)):
+        n = numbers[i]
+        remaining = numbers[i+1:]
+        subset_sum(remaining, target, rez, partial + [n]) 
+
+def sum_to_n(n, size, limit=None):
+    """Produce all lists of `size` positive integers in decreasing order
+    that add up to `n`."""
+    if size == 1:
+        yield [n]
+        return
+    if limit is None:
+        limit = n
+    start = (n + size - 1) // size
+    stop = min(limit, n - size + 1) + 1
+    for i in range(start, stop):
+        for tail in sum_to_n(n - i, size - 1, i):
+            yield [i] + tail
+
+
+# subset_sum([1,2,3,4,5,6,7,8,9,10,11 \
+# ,9 ,8 ,7 \
+# , 6, 6, 5, 5 \
+# ,4, 4, 4 \
+# ,3 ,3 ,3 ,3 ,3 \
+# ,2, 2, 2, 2, 2 \
+# ,1,1,1,1,1 \
+# ],18, r1)
+
+
+# def gaukVariantus(visoVariantu, esamasList):
+#     """
+#     Kaip su obuoliais. 3 obuolius galima padalinti i: 3 -> [[3], [2,1], [1,1,1]]
+#     """
+#     rez = []
+#     if (visoVariantu == 1):
+#         return [[1]]
+#     gaukVariantus
+#     newList = [[visoVariantu], [ , 1]]
+#     esamasList.append(newList)
+
+# print( gaukVariantus(1))
+# print( gaukVariantus(2))
+# print( gaukVariantus(3))
+# print( gaukVariantus(4))
+# print( gaukVariantus(5))
+# print( gaukVariantus(6))
+
+
+
+
+
+def isbandykVarianta(b1, b2, b3):
+    #n1 = getArrangedLetters(newPhrase)
+    #if (''.join(sorted(''.join([b1, b2, b3]))) == "ailnooprssttttuuwy"):
+    newPhrase = str(' ').join([b1, b2, b3])
+    #print(newPhrase)
+    guessableHash = hashlib.md5(newPhrase.encode()).hexdigest()
+    if (guessableHash in hashesToGuess):
+        print("WE HAVE A WINNER!")
+        
+        print(newPhrase)
+        with codecs.open("winner.txt", "w", "utf-8") as f:
+            f.write(newPhrase + "; " + guessableHash + "\n")
+
+for i1 in sum_to_n(18, 3):
+    print(i1)
+
+zodziaiSuRaidziuKiekiu = []
+for i in range(1, 12):
+    print(i)
+    zodziaiSuRaidziuKiekiu.append(gaukZodziusSuIlgiuX(buckets, i))
+for i1 in sum_to_n(18, 3):
+    print(i1)
+    for i2 in i1:
+        if i2 > 11:
+            break
+    print("Spausdinam: {}".format(i1))
+    p1 = [zodziaiSuRaidziuKiekiu[i1[0] -1], zodziaiSuRaidziuKiekiu[i1[1] -1], zodziaiSuRaidziuKiekiu[i1[2] -1]]
+
+
+    i = 0
+    isViso = len(p1[0])
+
+    perms = permutations(p1)
+    for i1, per in enumerate(perms):
+        visoListu = len(per)
+        i = 0
+        for b1 in per[0]:
+            start = time.clock()
+
+            i+=1
+            for b2 in per[1]:
+                for b3 in per[2]:
+                    isbandykVarianta(b1, b2, b3)
+            end = time.clock()
+            print("{}  {} is {}".format(i1, i, isViso))
+            print ("%.2gs" % (end-start))
+
+
+def visi_deriniai2(list1):
+    perms = [' '.join(p) for p in permutations(betkaip)]
+    return (perms)
+
+#perms =  permutations([zodziaiSuIlgiu7, zodziaiSuIlgiu7_2, zodziaiSuIlgiu4 ])
+# for i, p in enumerate(perms):
+#     print(str(i))
+#arrayOfBucketsSortedByLetterLength = getArrayOfBucketsSortedByLetterLength(buckets)
+
+# goodPhrasesList = []
+# with codecs.open("results.txt", "w", "utf-8") as fileToWrite:
+#     bigFatPhunction(bucketToEmpty, buckets, 0, totalLetters, goodPhrasesList, fileToWrite)
+
