@@ -201,6 +201,21 @@ goodPhrasesList = []
 with codecs.open("results.txt", "w", "utf-8") as fileToWrite:
     bigFatPhunction(bucketToEmpty, goodBucketList, goodWordsList, 0, totalLetters, goodPhrasesList, fileToWrite)
 
-
-
 print("ok")
+
+from itertools import permutations
+def visi_deriniai (str):
+    betkaip=str.split(" ")
+    perms = [' '.join(p) for p in permutations(betkaip)]
+    return (perms)
+
+
+str="airs l n o ops t tut ty u w"
+deriniu_listas=visi_deriniai(str)
+print(deriniu_listas)
+
+<<<<<<< HEAD
+
+=======
+print("ok")
+>>>>>>> d97a9a02251ecd8d63d1906084efd857c9051507
