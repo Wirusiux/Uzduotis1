@@ -77,44 +77,32 @@ def makeBucketsLetters(word1):
             letters[letter] = 1
     return letters
 
-def bigFatPhunction1(bucketToEmpty1, goodBucketList, goodWordsList, index, totalLetters, goodPhrasesList, fileToWrite):
-    bucketToEmpty = bucketToEmpty1.copy()
-    lettersLeft = totalLetters
-    phraseToGuess = ""
-    for i in range(index, len(goodBucketList)):
-        candidate = goodBucketList[i]
-        newBucket = bucketToEmpty.copy()
-        tempLettersLeft = lettersLeft
-        isGoodWord = True
-        for letter in candidate.keys():
-            if (newBucket[letter] - candidate[letter] >= 0):
-                newBucket[letter] = bucketToEmpty[letter] - candidate[letter]
-                tempLettersLeft -= candidate[letter]
-            else:
-                isGoodWord = False
-                break
-        if (isGoodWord):
-            lettersLeft = tempLettersLeft
-            bucketToEmpty = newBucket
-            phraseToGuess = " ".join([phraseToGuess, goodWordsList[i]])
-        if lettersLeft <= 0:
-            phraseToGuess = phraseToGuess[1:]
-            guessableHash = hashlib.md5(phraseToGuess.encode('utf-8')).hexdigest()
-            print("Phrase found:{};   {}".format(phraseToGuess, guessableHash))
-            hashesToGuess = ["e4820b45d2277f3844eac66c903e84be", "23170acc097c24edb98fc5488ab033fe", "665e5bcb0c20062fe8abaaf4628bb154"]
-            if (guessableHash in hashesToGuess):
-                print("WE HAVE A WINNER!")
-                print(phraseToGuess)
-                fileToWrite.write(phraseToGuess + "; " + guessableHash + "\n")
+def getGoodwordsBucketList(wordsFileName):
+    with codecs.open(wordsFileName, "r", "utf-8") as dictFile:
+        goodBucketList = []
+        goodWordsList = []
+        for line in dictFile:
+            goodWord = line[:-1]
+            goodBucketList.append(makeBucketsLetters(goodWord))
+            goodWordsList.append(goodWord)
+    return (goodBucketList, goodWordsList)
+        
+def getSearchablePhraseBucketList(filename):
+    wordsFile = open(filename, "r")
+    wordsStr = wordsFile.read()
+    print ("Phrase: " + wordsStr)
 
-            goodPhrasesList.append(phraseToGuess)
-            bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index + 1, totalLetters, goodPhrasesList, fileToWrite)
-            break
-    if (lettersLeft > 0):
-        if(len(goodBucketList) > index):
-            bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index + 1, totalLetters, goodPhrasesList, fileToWrite)
-        print("Exiting bigFatPhunction, lettersLeft: {}".format(lettersLeft))
-    return 
+    arrangedLetters = getArrangedLetters(wordsStr)
+    print("Arranged letters no space: " + arrangedLetters + " ; length: " + str(len(arrangedLetters)))
+
+    print("Bucket to fill: ")
+    bucketToEmpty = makeBucketsLetters(arrangedLetters)
+    print(bucketToEmpty)
+
+    arrangedUniqueLetters = getArrangedLetters(getUniqueLetters(wordsStr))
+    print("Arranged and unique letters: " + arrangedUniqueLetters + " ; length: " + str(len(arrangedUniqueLetters)))
+    return (bucketToEmpty, len(arrangedLetters))
+
 
 def tryTheCandidate(bucketToEmpty, candidateWord, lettersLeft):
     #nezinom ar kandidatas tinka, pasikuriam temp kintamuosius
@@ -168,52 +156,28 @@ def bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index, totalL
     totalWords = len(goodWordsList)
     (match, newPhrase) = searchForWords(bucketToEmpty1, goodBucketList, goodWordsList, i, totalLetters)
     if (match):
+        newPhrase = newPhrase[1:]
         goodPhrasesList.append(newPhrase)
         guessableHash = hashlib.md5(newPhrase.encode('utf-8')).hexdigest()
         print("Anagram found:{};   {}".format(newPhrase, guessableHash))
+        fileToWrite.write(newPhrase + "\n")
         if (guessableHash in hashesToGuess):
             print("WE HAVE A WINNER!")
-            print(phraseToGuess)
-            fileToWrite.write(phraseToGuess + "; " + guessableHash + "\n")
-        
-        if(i != totalWords- 1 ):
-            bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index + 1, totalLetters, goodPhrasesList, fileToWrite)
+            
+            print(newPhrase)
+            with codecs.open("winner.txt", "w", "utf-8") as f:
+                f.write(newPhrase + "; " + guessableHash + "\n")
+            return
+    print(i)
+    if(i != totalWords -1):
+        bigFatPhunction(bucketToEmpty1, goodBucketList, goodWordsList, index + 1, totalLetters, goodPhrasesList, fileToWrite)
     return 
-
-
-
-def getGoodwordsBucketList(wordsFileName):
-    with codecs.open(wordsFileName, "r", "utf-8") as dictFile:
-        goodBucketList = []
-        goodWordsList = []
-        for line in dictFile:
-            goodWord = line[:-1]
-            goodBucketList.append(makeBucketsLetters(goodWord))
-            goodWordsList.append(goodWord)
-    return (goodBucketList, goodWordsList)
-        
-def getSearchablePhraseBucketList(filename):
-    wordsFile = open(filename, "r")
-    wordsStr = wordsFile.read()
-    print ("Phrase: " + wordsStr)
-
-    arrangedLetters = getArrangedLetters(wordsStr)
-    print("Arranged letters no space: " + arrangedLetters + " ; length: " + str(len(arrangedLetters)))
-
-    print("Bucket to fill: ")
-    bucketToEmpty = makeBucketsLetters(arrangedLetters)
-    print(bucketToEmpty)
-
-    arrangedUniqueLetters = getArrangedLetters(getUniqueLetters(wordsStr))
-    print("Arranged and unique letters: " + arrangedUniqueLetters + " ; length: " + str(len(arrangedUniqueLetters)))
-    return (bucketToEmpty, len(arrangedLetters))
 
 
 #populateUsableDictionary("words.txt", "wordlist", "matched_wordlist")
 
 goodBucketList, goodWordsList = getGoodwordsBucketList("matched_wordlist2.txt")
 bucketToEmpty, totalLetters = getSearchablePhraseBucketList("words.txt")
-
 
 goodPhrasesList = []
 with codecs.open("results.txt", "w", "utf-8") as fileToWrite:
@@ -232,4 +196,8 @@ str="airs l n o ops t tut ty u w"
 deriniu_listas=visi_deriniai(str)
 print(deriniu_listas)
 
+<<<<<<< HEAD
 
+=======
+print("ok")
+>>>>>>> d97a9a02251ecd8d63d1906084efd857c9051507
